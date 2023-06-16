@@ -1,36 +1,78 @@
 #include <iostream>
+#include <sstream>
+#include <windows.h>
 #include <vector>
 #include <algorithm>
-#include <cstdlib>
-#include <ctime>
+#include <random>
 #include <iomanip>
+#include <string>
 #include <chrono>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
-std::vector<double> list2;
-
-void bubbleSort(std::vector<double> &array)
+void bubbleSort(std::vector<std::double_t> &array)
 {
+    bool swapped;
     int arraySize = array.size();
 
-    for (int i = 0; i < arraySize; i++)
+    for (int i = 0; i < arraySize - 1; i++)
     {
-        for (int j = 0; j < (arraySize - i - 1); j++)
+        swapped = false;
+
+        for (int j = 0; j < arraySize - i - 1; j++)
         {
             if (array[j] > array[j + 1])
             {
                 std::swap(array[j], array[j + 1]);
+                swapped = true;
             }
         }
+
+        if (!swapped)
+            break;
     }
 }
 
 int main()
 {
-    srand(static_cast<unsigned int>(time(nullptr)));
+    SetConsoleOutputCP(CP_UTF8);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(0.0, 100.0);
 
-    for (int i = 0; i < 100; i++)
+    std::ifstream file1("../../data/data.json");
+    if (!file1)
     {
-        list2.push_back(static_cast<double>(rand()) / RAND_MAX * 10);
+        std::cerr << "Erro ao abrir o arquivo JSON." << std::endl;
+    }
+    else
+    {
+        std::cout << "Arquivo encontrado com sucesso." << std::endl;
+    }
+
+    std::ifstream file2("../../data/text.json");
+    if (!file2)
+    {
+        std::cerr << "Erro ao abrir o arquivo JSON." << std::endl;
+    }
+    else
+    {
+        std::cout << "Arquivo encontrado com sucesso." << std::endl;
+    }
+
+    nlohmann::json jsonData1;
+    nlohmann::json jsonData2;
+
+    file1 >> jsonData1;
+    file2 >> jsonData2;
+
+    std::vector<std::string> wordsArray = jsonData1;
+    std::vector<std::string> textArray = jsonData2;
+
+    std::vector<double> list2(20000);
+    for (auto &element : list2)
+    {
+        element = dis(gen);
     }
 
     std::cout << "Array inicial:" << std::endl;
@@ -38,10 +80,12 @@ int main()
     {
         std::cout << element << " ";
     }
-    std::cout << "\n"
+    std::cout << "\n";
+    std::cout << "-----------------------------------------";
+    std::cout << "-----------------------------------------"
               << std::endl;
 
-    const int numIterations = 100;
+    const int numIterations = 10;
     double totalElapsedTime = 0.0;
 
     for (int i = 0; i < numIterations; i++)
@@ -65,7 +109,7 @@ int main()
     std::cout << "\n"
               << std::endl;
 
-    std::cout << "Tempo de execucao medio: " << std::fixed << std::setprecision(10) << averageTime << " segundos" << std::endl;
+    std::cout << "Tempo de execucao medio: " << std::fixed << std::setprecision(6) << averageTime << " segundos" << std::endl;
 
     return 0;
 }
